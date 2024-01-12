@@ -24,6 +24,7 @@ img {
  margin:5px;
  width: 360px;
  height: 200px;
+ cursor: zoom-in;
 }
 
 .section {
@@ -91,4 +92,6 @@ ul {
   margin: 0;
   width: 1440px;
 height: 696px;
+
+
 }
