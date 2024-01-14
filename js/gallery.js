@@ -63,7 +63,10 @@ const images = [
     description: "Lighthouse Coast Sea",
   },
 ];
+// Вибір контейнера для галереї у DOM
 const galleryContainer = document.querySelector('.gallery');
+
+// Генерація розмітки галереї на основі масиву зображень
 const galleryMarkup = images.map(({ preview, original, description }) => `
 <li class="gallery-item">
   <a class="gallery-link" href="${original}">
@@ -77,29 +80,55 @@ const galleryMarkup = images.map(({ preview, original, description }) => `
 </li>
 `).join('');
 
-
+// Вставка сгенерованої розмітки у контейнер галереї
 galleryContainer.innerHTML = galleryMarkup;
 
+// Ініціалізація змінної для екземпляру basicLightbox
+let lightboxInstance = null;
+
+// Додавання слухача подій на кліки у контейнері галереї
 galleryContainer.addEventListener('click', onGalleryClick);
 
 function onGalleryClick(event) {
+  // Запобігання стандартній обробці кліку
   event.preventDefault();
+
+  // Перевірка, чи клік був здійснений на зображенні
   if (event.target.nodeName !== 'IMG') {
     return;
   }
 
+  // Отримання адреси зображення
   const imageSrc = event.target.dataset.source;
 
-  const instance = basicLightbox.create(`
-    <img src="${imageSrc}" width="800" height="600">
-  `);
+  // Перевірка, чи існує екземпляр lightbox
+  if (!lightboxInstance) {
+      // Створення нового екземпляру lightbox, якщо він ще не був створений
+      lightboxInstance = basicLightbox.create(`
+        <img src="${imageSrc}" width="800" height="600">
+      `, {
+          // Додавання слухача подій для клавіші Escape при відкритті
+          onShow: (instance) => {
+              document.addEventListener('keydown', onKeydown);
+          },
+          // Видалення слухача подій для клавіші Escape при закритті
+          onClose: (instance) => {
+              document.removeEventListener('keydown', onKeydown);
+          }
+      });
+  } else {
+      // Оновлення вмісту існуючого екземпляру lightbox
+      lightboxInstance.element().querySelector('img').src = imageSrc;
+  }
 
-  instance.show();
+  // Показ екземпляру lightbox
+  lightboxInstance.show();
+}
 
- 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      instance.close();
-    }
-  }, { once: true }); // Опція { once: true } забезпечить видалення слухача після першого використання
+// Функція для обробки натискання клавіш
+function onKeydown(event) {
+  // Закриття lightbox при натисканні клавіші Escape
+if (event.key === 'Escape' && lightboxInstance) {
+lightboxInstance.close();
+}
 }
